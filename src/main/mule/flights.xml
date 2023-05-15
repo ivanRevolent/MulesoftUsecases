@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:american-flights-api="http://www.mulesoft.org/schema/mule/american-flights-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/american-flights-api http://www.mulesoft.org/schema/mule/american-flights-api/current/mule-american-flights-api.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="02d811d7-03b3-4e79-afe6-bb46818299b8" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" readTimeout="3000" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="25372570-4824-4c99-b8f3-e78c3ab073cd" file="config.yaml" />
+	<american-flights-api:config name="American_Flights_API_Config" doc:name="American Flights API Config" doc:id="62e4351a-5990-4387-b122-94d31c4ab065" property_host="${american.host}" property_port="${american.port}" property_protocol="${american.protocol}" property_basePath="${american.basepath}" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1fb4fa30-738a-45ef-ab48-aa4c3b6cd2ae" >
+		<http:request-connection host="ilt.learn.mulesoft.com" port="80" />
+	</http:request-config>
+	<wsc:config name="Delta_Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="11d2a071-912a-425b-9af1-1fa523ec58b1" >
+		<wsc:connection wsdlLocation="${delta.wsdl}" service="${delta.service}" port="${delta.port}" />
+	</wsc:config>
+	<flow name="allFlights" doc:id="ab63370c-4919-4bd5-bf2b-b2113fba5b3b" >
+		<http:listener doc:name="Listener" doc:id="da60ae64-80ef-49dd-a2cc-04abdb1b9e83" config-ref="HTTP_Listener_config" path="/allFlights"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="2aad21ac-19e8-42d9-a026-858128486632" >
+			<route >
+				<flow-ref doc:name="American Flow Reference" doc:id="3dc2d77d-b1a3-4c44-a98e-7c75c5aa462e" name="getAllAmericanFlightsFlow" />
+			</route>
+			<route >
+				<flow-ref doc:name="DeltaFlow" doc:id="637f344d-3b24-408b-aa6a-5d263cc42b13" name="getDeltaflightsFlow"/>
+			</route>
+			<route >
+				<flow-ref doc:name="United Flow Reference" doc:id="4d15677d-68ad-4e99-846d-ac447af3e46c" name="getAllUnitedFlightsFlow" />
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="1a91fbcb-881e-4850-95b0-eb7d81ef4955" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+flatten(payload..payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Flights to JSON" doc:id="9bb83ffc-718e-4497-ac26-159bbaf69e87" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getFlightsFlow" doc:id="5cd5915e-dd61-4f0e-aec5-8a58786a34eb" >
+		<http:listener doc:name="Listener" doc:id="039ad1a1-f76d-4f4f-9abb-754190d0e1c0" config-ref="HTTP_Listener_config" path="/flights"/>
+		<set-variable value="#[message.attributes.queryParams.airline]" doc:name="airline" doc:id="af6c6e64-41ba-4790-96e1-703aaab865e2" variableName="airline"/>
+		<choice doc:name="Choice" doc:id="e99babfd-ed4e-4eac-9e03-16988d20191a" >
+			<when expression='#[vars.airline == "american"]'>
+				<flow-ref doc:name="American Flow Reference" doc:id="fab5cc48-8aee-4b1c-a7d5-423fece94e50" name="getAllAmericanFlightsFlow"/>
+			</when>
+			<when expression='#[vars.airline == "united"]'>
+				<flow-ref doc:name="United Flow Reference" doc:id="ebf6857c-bf90-421c-b59a-be7c891cdd95" name="getAllUnitedFlightsFlow"/>
+			</when>
+			<when expression='#[vars.airline == "delta"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="7740ff8c-7dfe-4187-862c-bd7aa656774d" name="getDeltaflightsFlow"/>
+			</when>
+			<otherwise>
+				<flow-ref doc:name="allFlights Flow Reference" doc:id="418b1493-0e60-43c8-9ee4-97af707fc7b6" name="allFlights"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="086ddb50-3658-40f8-86a2-71b6ce7d885e" message="#[vars.airline]"/>
+	</flow>
+	<flow name="getAllAmericanFlightsFlow" doc:id="1146005c-e7a4-4cf4-811a-d3ca297396c1" >
+		<http:listener doc:name="Listener" doc:id="006ad9af-c71c-43b7-ba4c-440e65a754bd" config-ref="HTTP_Listener_config" path="/american"/>
+		<american-flights-api:get-flights doc:name="Get flights" doc:id="d83d315f-c164-4a28-86b2-ac771c0e792d" config-ref="American_Flights_API_Config" client-id="${american.client_id}" client-secret="${american.client_secret}" request-streaming-mode="NEVER" />
+		<ee:transform doc:name="Transform Message" doc:id="6aa52e54-5171-4a54-b9fd-72e9aee6c51c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	airlineName: "American",
+	availableSeats: payload01.emptySeats,
+	departureDate: payload01.departureDate,
+	destination: payload01.destination,
+	flightCode: payload01.code,
+	origination: payload01.origin,
+	planeType: payload01.plane."type",
+	price: payload01.price
+} as Object {
+	class : "training.Flight"
+}	]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Flights to JSON" doc:id="c91c66e4-da49-4e42-ad03-54b3078be1dc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getAllUnitedFlightsFlow" doc:id="fd3a8a95-e015-409a-b045-e73ce3cc0dab" >
+		<http:listener doc:name="getUnitedFlights" doc:id="edf058ce-89d9-4519-bb6d-0c66a8ccb337" config-ref="HTTP_Listener_config" path="/united"/>
+		<http:request method="GET" doc:name="getUnitedFlights" doc:id="471d50ed-207a-49e5-a7da-5d6f37277f33" config-ref="HTTP_Request_configuration" path="/united/flights"/>
+		<ee:transform doc:name="Transform Message" doc:id="1cc93e6f-ae6c-43c3-8cf7-5996c3cdb663" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload.flights map ( flight , indexOfFlight ) -> {
+	airlineName: flight.airlineName,
+	availableSeats: flight.emptySeats,
+	departureDate: flight.departureDate,
+	destination: flight.destination,
+	flightCode: flight.code,
+	origination: flight.origin,
+	planeType: flight.planeType,
+	price: flight.price
+} as Object {
+	class : "training.Flight"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Flights to JSON" doc:id="ab218396-e7f0-4d13-ae69-0cf2ef8bc46a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getDeltaflightsFlow" doc:id="a0d330a4-b412-4393-a887-bca206964c47" >
+		<http:listener doc:name="Listener" doc:id="9c4706df-b8ca-4f85-a071-6341e80c7e33" config-ref="HTTP_Listener_config" path="/delta"/>
+		<wsc:consume doc:name="getDeltaFlightSoap" doc:id="f2fffb75-56c7-46c1-8bd6-c34eb592018e" config-ref="Delta_Web_Service_Consumer_Config" operation="listAllFlights"/>
+		<ee:transform doc:name="SOAP to JSON" doc:id="2645d380-cff5-4aac-91c4-f8a069335bdf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.training.mulesoft.com/
+---
+payload.body.ns0#listAllFlightsResponse.*return map ( return , indexOfReturn ) -> {
+	airline: return.airlineName default "",
+	flightCode: (return.code default "") ++ (return.code default ""),
+	fromAirportCode: return.origin default "",
+	toAirportCode: return.destination default "",
+	departureDate: return.departureDate default "",
+	emptySeats: return.emptySeats default 0,
+	price: return.price default 0,
+	planeType: return.planeType default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

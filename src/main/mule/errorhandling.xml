@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+<configuration doc:name="Configuration" doc:id="b1b2d7a3-e69e-41b1-bf3c-d0c2f0ce2a99" defaultErrorHandler-ref="allErrorHandler" />
+	<flow name="error-handlers-normalFlow" doc:id="3635410e-20ce-4c22-b5a9-ce532da6618e">
+  <http:listener doc:name="Listener" path="/users" config-ref="HTTP_Listener_config"/>
+  <http:request method="GET" path="/somebadrequest" config-ref="HTTP_Request_configuration"/>
+  <logger level="INFO" doc:name="Logger" message='#["Flow Finished!"]'/>
+  <error-handler>
+    <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" >
+      <logger level="ERROR" doc:name="Logger" message="#[error.description]"/>
+				<set-payload value='#["Error caught by local flow error handler: " ++ (error.description as String)]' doc:name="Set Payload" doc:id="11075217-b12f-4e8b-9999-7aa83e556fac" />
+    
+</on-error-continue>
+  </error-handler>
+</flow>
+	<flow name="error-handlers-referencedFlow" doc:id="e2937ce7-e667-421a-bfda-35fc00f60b98" >
+		<http:listener doc:name="Listener" doc:id="6a1d27ed-75fd-48d7-a806-264029d26436" config-ref="HTTP_Listener_config" path="/usersReferenced" />
+		<http:request method="GET" doc:name="Request" doc:id="207c976e-91cf-44d0-91fd-8d504b2f82a5" config-ref="HTTP_Request_configuration" path="/somebadrequest" />
+		<logger level="INFO" doc:name="Logger" doc:id="ed4b9280-ccbb-41ff-8cd5-08bc2166347b" />
+		<error-handler ref="allErrorHandler" />
+	</flow>
+	<error-handler name="allErrorHandler" doc:id="1ae253a4-9bb2-4a71-aff8-11809bcb83a7" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4c15532d-fdd0-43f6-912f-8115051747bb" >
+			<set-payload value='#["Error caught by referenced allErrorHandler: " ++ (error.description as String)]' doc:name="Set Payload" doc:id="142028ce-f799-44d1-aea4-ec082c739eb8" />
+		</on-error-continue>
+	</error-handler>
+	<flow name="oncontErrorhandlingFlow" doc:id="fdd4ca85-b684-4be6-8eeb-e2f3859e0972" >
+		<http:listener doc:name="Listener" doc:id="d1d47331-13a1-41da-bfa9-a9223079a1a4" config-ref="HTTP_Listener_config" path="/continue"/>
+		<flow-ref doc:name="Flow Reference" doc:id="613868c7-8fa8-44dc-91a1-55d5cb3d52c4" name="error-handlers-normalFlow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ce3ba82e-f5cd-411f-9612-73c1151f388e" message='#["Flow Finished!"]'/>
+	</flow>
+	
+	
+</mule>

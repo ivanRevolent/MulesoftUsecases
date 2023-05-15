@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="1f7b03cb-b605-4410-a39e-cdbe270a02fc" >
+		<file:connection workingDir="C:\Users\ivanf\Documents\MuleSoft\input" />
+	</file:config>
+<!-- [STUDIO:"streamingFlow"]	<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
+		<file:listener doc:name="On New or Updated File" doc:id="e726c7be-c23c-40d2-8db5-a8273de5afc8" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<file:read doc:name="Read" doc:id="4e3d6502-e52c-4472-8d2d-47561c9573bc" config-ref="File_Config" outputMimeType="application/csv; streaming=true" path="C:\Users\ivanf\Documents\MuleSoft\input\records.csv" targetValue="#[output application/json deferred=true&#10;&#45;&#45;-&#10;payload]">
+		</file:read>
+		<logger level="INFO" doc:name="Start Logger" doc:id="3ef6b2b7-065e-4ef6-a277-3cdfb3b79085" message="Start" />
+		<file:write doc:name="Write" doc:id="26834475-47fb-4c95-80e2-e374f0deda55" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\output\recordOutput.txt" >
+			<file:content ><![CDATA[#[output application/json deferred=true
+&#45;&#45;-
+payload map (record) ->
+    {
+        FullName: record.lastName ++ "," ++ record.name,
+        Age: record.age
+    }]]]></file:content>
+		</file:write>
+		<logger level="INFO" doc:name="End Logger" doc:id="4d26949c-2e0e-4c3b-b835-58f02c2c3349" message="Done" />
+	
+</flow> [STUDIO] -->
+	<flow name="nonstreamingFlow" doc:id="a0747562-fd4c-4263-b993-46622e35143d" >
+		<file:listener doc:name="On New or Updated File" doc:id="bddcfdf5-77ee-4dc7-b29a-c0a6594164ae" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<file:read doc:name="Read" doc:id="2f6612ee-609c-430c-b185-6a2e7eda61b6" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\input\records.csv">
+			<non-repeatable-stream />
+		</file:read>
+		<logger level="INFO" doc:name="Start Logger" doc:id="19d281a4-d2c1-4e0c-8438-eefe6aa3e3b3" message="Start" />
+		<file:write doc:name="Write" doc:id="3dcf6f57-7946-4176-8425-dfa89dacd3f7" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\output\recordOutput.txt" >
+			<file:content ><![CDATA[#[output application/json
+---
+payload map (record) ->
+    {
+        FullName: record.lastName ++ "," ++ record.name,
+        Age: record.age
+    }]]]></file:content>
+		</file:write>
+		<logger level="INFO" doc:name="End Logger" doc:id="c2fe14fd-8fdf-48e1-b50a-16e00594bfec" message="Done" />
+	</flow>
+</mule>

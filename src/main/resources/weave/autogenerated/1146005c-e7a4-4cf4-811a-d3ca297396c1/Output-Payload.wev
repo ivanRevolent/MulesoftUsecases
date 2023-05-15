@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_1146005c_e7a4_4cf4_811a_d3ca297396c1_Output_Payload = Array<{  plane?: {    "type": String,     totalSeats: Number,     _?: Any  },   code: String,   price: Number,   origin: String,   destination: String,   ID?: Number,   departureDate: String,   emptySeats: Number,   _?: Any}>
+

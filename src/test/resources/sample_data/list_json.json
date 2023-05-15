@@ -1,0 +1,40 @@
+[
+  {
+    "plane": {
+      "type": "vitae",
+      "totalSeats": 30,
+      "": {
+        
+      }
+    },
+    "code": "Neque",
+    "price": 88.57,
+    "origin": "eum",
+    "destination": "ut",
+    "ID": 47,
+    "departureDate": "iste",
+    "emptySeats": 30,
+    "": {
+      
+    }
+  },
+  {
+    "plane": {
+      "type": "commodi",
+      "totalSeats": 18,
+      "": {
+        
+      }
+    },
+    "code": "beatae",
+    "price": 49.24,
+    "origin": "laborum.",
+    "destination": "ea",
+    "ID": 86,
+    "departureDate": "est,",
+    "emptySeats": 94,
+    "": {
+      
+    }
+  }
+]
