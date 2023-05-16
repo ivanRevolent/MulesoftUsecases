@@ -17,7 +17,7 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 			</email:properties>
 		</email:smtp-connection>
 	</email:smtp-config>
-<!-- [STUDIO:"streamingFlow"]	<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
+	<!-- [STUDIO:"streamingFlow"]	<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
 		<file:listener doc:name="On New or Updated File" doc:id="e726c7be-c23c-40d2-8db5-a8273de5afc8" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
 			<scheduling-strategy >
 				<fixed-frequency />
@@ -36,23 +36,25 @@ payload map (record) ->
     }]]]></file:content>
 		</file:write>
 		<logger level="INFO" doc:name="End Logger" doc:id="4d26949c-2e0e-4c3b-b835-58f02c2c3349" message="Done" />
-		<email:send doc:name="Send" doc:id="56e2c2fa-60ca-4b8f-90dd-613ccc559bbf" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject="Write process complete">
-			<email:to-addresses >
+		<try doc:name="Try" doc:id="f2018a06-f9fc-43a4-96ab-02afddbefcef" >
+			<email:send doc:name="Send" doc:id="56e2c2fa-60ca-4b8f-90dd-613ccc559bbf" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject='#["Write process complete at: " ++ now()]'>
+			<email:to-addresses>
 				<email:to-address value="i.fonseca@revolentgroup.com" />
 			</email:to-addresses>
-			<email:body >
-				<email:content ><![CDATA[Done]]></email:content>
+			<email:body>
+				<email:content><![CDATA[Done]]></email:content>
 			</email:body>
 		</email:send>
-		<error-handler ref="emailErroHandler" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4cb9b177-69d9-4e02-b481-e1ba8beff4c2" type="EMAIL:CONNECTIVITY, EMAIL:RETRY_EXHAUSTED, EMAIL:SEND">
+					<logger level="INFO" doc:name="Logger" doc:id="3d115074-6765-4251-964b-c9a290593a19" message="#[error.description]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<error-handler ref="emailErrorHandler" />
 	
 
 </flow> [STUDIO] -->
-	<error-handler name="emailErroHandler" doc:id="b4c94454-7190-4425-a9f0-08d3ffac47e5" >
-		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="485c2138-fa20-4f8a-a25b-7c7f5f39ac68" type="ANY">
-			<logger level="INFO" doc:name="Logger" doc:id="310613e8-cd00-497e-a342-6dd66b1d9e57" message="#[error.description]"/>
-		</on-error-continue>
-	</error-handler>
 	<flow name="nonstreamingFlow" doc:id="a0747562-fd4c-4263-b993-46622e35143d" >
 		<file:listener doc:name="On New or Updated File" doc:id="bddcfdf5-77ee-4dc7-b29a-c0a6594164ae" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
 			<scheduling-strategy >
@@ -73,15 +75,27 @@ payload map (record) ->
     }]]]></file:content>
 		</file:write>
 		<logger level="INFO" doc:name="End Logger" doc:id="c2fe14fd-8fdf-48e1-b50a-16e00594bfec" message="Done" />
-		<email:send doc:name="Send" doc:id="d2241144-8351-4e53-ac82-739c99c5d09f" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject="Write process complete" >
-			<email:to-addresses >
-				<email:to-address value="i.fonseca@revolentgroup.com" />
-			</email:to-addresses>
-			<email:body >
-				<email:content ><![CDATA[Done]]></email:content>
-			</email:body>
-		</email:send>
-		<error-handler ref="emailErroHandler" />
+		<try doc:name="Try" doc:id="24465657-7b43-4424-b8c0-3acd76a4d280" >
+			<email:send doc:name="Send" doc:id="607e4a63-5dc2-41f0-987b-97680942f66f" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject='#["Write process complete at: " ++ now()]' >
+				<email:to-addresses >
+					<email:to-address value="i.fonseca@revolentgroup.com" />
+				</email:to-addresses>
+				<email:body >
+					<email:content ><![CDATA[Done]]></email:content>
+				</email:body>
+			</email:send>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="593446d9-c3fb-4cc6-ab40-c9b564cf086f" type="EMAIL:CONNECTIVITY, EMAIL:RETRY_EXHAUSTED, EMAIL:SEND" >
+					<logger level="INFO" doc:name="Logger" doc:id="77f32f01-8723-439c-94ec-ba3baff2c7b7" message='#["Unable to send email!"]' />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<error-handler ref="emailErrorHandler" />
 	
 </flow>
+	<error-handler name="emailErrorHandler" doc:id="b4c94454-7190-4425-a9f0-08d3ffac47e5">
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="796dd50a-a7a3-4a56-be85-455e8bb2c587" type="ANY">
+			<logger level="INFO" doc:name="Logger" doc:id="310613e8-cd00-497e-a342-6dd66b1d9e57" message="#[error.description]" />
+		</on-error-propagate>
+	</error-handler>
 </mule>
