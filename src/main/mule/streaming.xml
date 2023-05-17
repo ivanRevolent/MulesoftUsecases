@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:email="http://www.mulesoft.org/schema/mule/email"
-	xmlns:file="http://www.mulesoft.org/schema/mule/file"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:azure-data-lake-storage="http://www.mulesoft.org/schema/mule/azure-data-lake-storage" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/azure-data-lake-storage http://www.mulesoft.org/schema/mule/azure-data-lake-storage/current/mule-azure-data-lake-storage.xsd">
 	<file:config name="File_Config" doc:name="File Config" doc:id="1f7b03cb-b605-4410-a39e-cdbe270a02fc" >
 		<file:connection workingDir="C:\Users\ivanf\Documents\MuleSoft\input" />
 	</file:config>
@@ -17,18 +18,18 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 			</email:properties>
 		</email:smtp-connection>
 	</email:smtp-config>
-	<!-- [STUDIO:"streamingFlow"]	<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
+		<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
 		<file:listener doc:name="On New or Updated File" doc:id="e726c7be-c23c-40d2-8db5-a8273de5afc8" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
 			<scheduling-strategy >
 				<fixed-frequency />
 			</scheduling-strategy>
 		</file:listener>
-		<file:read doc:name="Read" doc:id="4e3d6502-e52c-4472-8d2d-47561c9573bc" config-ref="File_Config" outputMimeType="application/csv; streaming=true" path="C:\Users\ivanf\Documents\MuleSoft\input\records.csv" targetValue="#[output application/json deferred=true&#10;&#45;&#45;-&#10;payload]">
+		<file:read doc:name="Read" doc:id="4e3d6502-e52c-4472-8d2d-47561c9573bc" config-ref="File_Config" outputMimeType="application/csv; streaming=true" path="C:\Users\ivanf\Documents\MuleSoft\input\records.csv" targetValue="#[output application/json deferred=true&#10;---&#10;payload]">
 		</file:read>
 		<logger level="INFO" doc:name="Start Logger" doc:id="3ef6b2b7-065e-4ef6-a277-3cdfb3b79085" message="Start" />
 		<file:write doc:name="Write" doc:id="26834475-47fb-4c95-80e2-e374f0deda55" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\output\recordOutput.txt" >
 			<file:content ><![CDATA[#[output application/json deferred=true
-&#45;&#45;-
+---
 payload map (record) ->
     {
         FullName: record.lastName ++ "," ++ record.name,
@@ -36,26 +37,12 @@ payload map (record) ->
     }]]]></file:content>
 		</file:write>
 		<logger level="INFO" doc:name="End Logger" doc:id="4d26949c-2e0e-4c3b-b835-58f02c2c3349" message="Done" />
-		<try doc:name="Try" doc:id="f2018a06-f9fc-43a4-96ab-02afddbefcef" >
-			<email:send doc:name="Send" doc:id="56e2c2fa-60ca-4b8f-90dd-613ccc559bbf" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject='#["Write process complete at: " ++ now()]'>
-			<email:to-addresses>
-				<email:to-address value="i.fonseca@revolentgroup.com" />
-			</email:to-addresses>
-			<email:body>
-				<email:content><![CDATA[Done]]></email:content>
-			</email:body>
-		</email:send>
-			<error-handler >
-				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4cb9b177-69d9-4e02-b481-e1ba8beff4c2" type="EMAIL:CONNECTIVITY, EMAIL:RETRY_EXHAUSTED, EMAIL:SEND">
-					<logger level="INFO" doc:name="Logger" doc:id="3d115074-6765-4251-964b-c9a290593a19" message="#[error.description]"/>
-				</on-error-continue>
-			</error-handler>
-		</try>
+<flow-ref doc:name="Flow Reference" doc:id="ea04904d-e6d7-4253-baba-b251c39afaaf" name="emailFlow" />
 		<error-handler ref="emailErrorHandler" />
 	
 
-</flow> [STUDIO] -->
-	<flow name="nonstreamingFlow" doc:id="a0747562-fd4c-4263-b993-46622e35143d" >
+</flow>
+<!-- [STUDIO:"nonstreamingFlow"]	<flow name="nonstreamingFlow" doc:id="a0747562-fd4c-4263-b993-46622e35143d" >
 		<file:listener doc:name="On New or Updated File" doc:id="bddcfdf5-77ee-4dc7-b29a-c0a6594164ae" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
 			<scheduling-strategy >
 				<fixed-frequency />
@@ -67,7 +54,7 @@ payload map (record) ->
 		<logger level="INFO" doc:name="Start Logger" doc:id="19d281a4-d2c1-4e0c-8438-eefe6aa3e3b3" message="Start" />
 		<file:write doc:name="Write" doc:id="3dcf6f57-7946-4176-8425-dfa89dacd3f7" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\output\recordOutput.txt" >
 			<file:content ><![CDATA[#[output application/json
----
+&#45;&#45;-
 payload map (record) ->
     {
         FullName: record.lastName ++ "," ++ record.name,
@@ -75,8 +62,13 @@ payload map (record) ->
     }]]]></file:content>
 		</file:write>
 		<logger level="INFO" doc:name="End Logger" doc:id="c2fe14fd-8fdf-48e1-b50a-16e00594bfec" message="Done" />
-		<try doc:name="Try" doc:id="24465657-7b43-4424-b8c0-3acd76a4d280" >
-			<email:send doc:name="Send" doc:id="607e4a63-5dc2-41f0-987b-97680942f66f" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject='#["Write process complete at: " ++ now()]' >
+<flow-ref doc:name="Flow Reference" doc:id="88cc374a-7cc6-4aa8-9aca-a05c7dc1d3f6" name="emailFlow"/>
+		<error-handler ref="emailErrorHandler" />
+	
+</flow> [STUDIO] -->
+	<flow name="emailFlow" doc:id="317522c9-1eef-4c79-aded-7634a4bd1cc7" >
+		<try doc:name="Try" doc:id="c25db5c6-6cff-4083-b220-acae06d480ce" >
+			<email:send doc:name="Send" doc:id="e0120baf-d337-4061-bcd0-3a10a196ecd6" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject='#["Write process complete at: " ++ now()]' >
 				<email:to-addresses >
 					<email:to-address value="i.fonseca@revolentgroup.com" />
 				</email:to-addresses>
@@ -85,14 +77,12 @@ payload map (record) ->
 				</email:body>
 			</email:send>
 			<error-handler >
-				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="593446d9-c3fb-4cc6-ab40-c9b564cf086f" type="EMAIL:CONNECTIVITY, EMAIL:RETRY_EXHAUSTED, EMAIL:SEND" >
-					<logger level="INFO" doc:name="Logger" doc:id="77f32f01-8723-439c-94ec-ba3baff2c7b7" message='#["Unable to send email!"]' />
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="32aa85ea-bd7b-414e-83e7-cc1085bb3325" type="EMAIL:CONNECTIVITY, EMAIL:RETRY_EXHAUSTED, EMAIL:SEND" >
+					<logger level="INFO" doc:name="Logger" doc:id="9267e92e-353d-4d36-bf8b-014aadc30750" message='#["Unable to send email!"]' />
 				</on-error-continue>
 			</error-handler>
 		</try>
-		<error-handler ref="emailErrorHandler" />
-	
-</flow>
+	</flow>
 	<error-handler name="emailErrorHandler" doc:id="b4c94454-7190-4425-a9f0-08d3ffac47e5">
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="796dd50a-a7a3-4a56-be85-455e8bb2c587" type="ANY">
 			<logger level="INFO" doc:name="Logger" doc:id="310613e8-cd00-497e-a342-6dd66b1d9e57" message="#[error.description]" />
