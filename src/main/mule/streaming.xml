@@ -9,27 +9,28 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/azure-data-lake-storage http://www.mulesoft.org/schema/mule/azure-data-lake-storage/current/mule-azure-data-lake-storage.xsd">
 	<file:config name="File_Config" doc:name="File Config" doc:id="1f7b03cb-b605-4410-a39e-cdbe270a02fc" >
-		<file:connection workingDir="C:\Users\ivanf\Documents\MuleSoft\input" />
+		<file:connection workingDir="${file.directory}" />
 	</file:config>
 	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="9f5eda4b-e01a-4c89-9c92-7009ee582890" >
-		<email:smtp-connection host="smtp.gmail.com" port="587" user="ivanfons05@gmail.com" password="jtzhwjuswsmzngzr" >
+		<email:smtp-connection host="${email.host}" port="${email.port}" user="${email.user}" password="${email.password}" >
 			<email:properties >
 				<email:property key="mail.smtp.starttls.enable" value="true" />
 			</email:properties>
 		</email:smtp-connection>
 	</email:smtp-config>
-		<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
+		<configuration-properties doc:name="Configuration properties" doc:id="0f045901-4cf4-4747-b6fb-5254a2c62924" file="config.yaml" />
+<!-- [STUDIO:"streamingFlow"]	<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
 		<file:listener doc:name="On New or Updated File" doc:id="e726c7be-c23c-40d2-8db5-a8273de5afc8" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
 			<scheduling-strategy >
 				<fixed-frequency />
 			</scheduling-strategy>
 		</file:listener>
-		<file:read doc:name="Read" doc:id="4e3d6502-e52c-4472-8d2d-47561c9573bc" config-ref="File_Config" outputMimeType="application/csv; streaming=true" path="C:\Users\ivanf\Documents\MuleSoft\input\records.csv" targetValue="#[output application/json deferred=true&#10;---&#10;payload]">
+		<file:read doc:name="Read" doc:id="4e3d6502-e52c-4472-8d2d-47561c9573bc" config-ref="File_Config" outputMimeType="application/csv; streaming=true" path="${file.fileRead}" targetValue="#[output application/json deferred=true&#10;&#45;&#45;-&#10;payload]">
 		</file:read>
 		<logger level="INFO" doc:name="Start Logger" doc:id="3ef6b2b7-065e-4ef6-a277-3cdfb3b79085" message="Start" />
-		<file:write doc:name="Write" doc:id="26834475-47fb-4c95-80e2-e374f0deda55" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\output\recordOutput.txt" >
+		<file:write doc:name="Write" doc:id="26834475-47fb-4c95-80e2-e374f0deda55" config-ref="File_Config" path="${file.fileWrite}" >
 			<file:content ><![CDATA[#[output application/json deferred=true
----
+&#45;&#45;-
 payload map (record) ->
     {
         FullName: record.lastName ++ "," ++ record.name,
@@ -41,20 +42,20 @@ payload map (record) ->
 		<error-handler ref="emailErrorHandler" />
 	
 
-</flow>
-<!-- [STUDIO:"nonstreamingFlow"]	<flow name="nonstreamingFlow" doc:id="a0747562-fd4c-4263-b993-46622e35143d" >
+</flow> [STUDIO] -->
+	<flow name="nonstreamingFlow" doc:id="a0747562-fd4c-4263-b993-46622e35143d" >
 		<file:listener doc:name="On New or Updated File" doc:id="bddcfdf5-77ee-4dc7-b29a-c0a6594164ae" config-ref="File_Config" moveToDirectory="C:\Users\ivanf\Documents\MuleSoft\archive" >
 			<scheduling-strategy >
 				<fixed-frequency />
 			</scheduling-strategy>
 		</file:listener>
-		<file:read doc:name="Read" doc:id="2f6612ee-609c-430c-b185-6a2e7eda61b6" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\input\records.csv">
+		<file:read doc:name="Read" doc:id="2f6612ee-609c-430c-b185-6a2e7eda61b6" config-ref="File_Config" path="${file.fileRead}">
 			<non-repeatable-stream />
 		</file:read>
 		<logger level="INFO" doc:name="Start Logger" doc:id="19d281a4-d2c1-4e0c-8438-eefe6aa3e3b3" message="Start" />
-		<file:write doc:name="Write" doc:id="3dcf6f57-7946-4176-8425-dfa89dacd3f7" config-ref="File_Config" path="C:\Users\ivanf\Documents\MuleSoft\output\recordOutput.txt" >
+		<file:write doc:name="Write" doc:id="3dcf6f57-7946-4176-8425-dfa89dacd3f7" config-ref="File_Config" path="${file.fileWrite}" >
 			<file:content ><![CDATA[#[output application/json
-&#45;&#45;-
+---
 payload map (record) ->
     {
         FullName: record.lastName ++ "," ++ record.name,
@@ -65,7 +66,7 @@ payload map (record) ->
 <flow-ref doc:name="Flow Reference" doc:id="88cc374a-7cc6-4aa8-9aca-a05c7dc1d3f6" name="emailFlow"/>
 		<error-handler ref="emailErrorHandler" />
 	
-</flow> [STUDIO] -->
+</flow>
 	<flow name="emailFlow" doc:id="317522c9-1eef-4c79-aded-7634a4bd1cc7" >
 		<try doc:name="Try" doc:id="c25db5c6-6cff-4083-b220-acae06d480ce" >
 			<email:send doc:name="Send" doc:id="e0120baf-d337-4061-bcd0-3a10a196ecd6" config-ref="Email_SMTP" fromAddress="ivanfons05@gmail.com" subject='#["Write process complete at: " ++ now()]' >

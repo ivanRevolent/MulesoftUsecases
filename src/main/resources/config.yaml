@@ -13,3 +13,14 @@ delta:
   wsdl: "http://ilt.learn.mulesoft.com/delta?wsdl"
   service: "TicketServiceService"
   port: "TicketServicePort"
+  
+email:
+  host: "smtp.gmail.com"
+  port: "587"
+  user: "ivanfons05@gmail.com"
+  password: "jtzhwjuswsmzngzr"
+
+file:
+  directory: "C:\\Users\\ivanf\\Documents\\MuleSoft\\input"
+  fileRead: "C:\\Users\\ivanf\\Documents\\MuleSoft\\input\\records.csv"
+  fileWrite: "C:\\Users\\ivanf\\Documents\\MuleSoft\\output\\rrecordOutput.txt"
