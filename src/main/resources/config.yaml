@@ -1,6 +1,9 @@
 http:
   port: "8081"
 
+https:
+  port: "8082"
+
 american:
   host: "training4-american-api.cloudhub.io"
   port: "80"
@@ -14,13 +17,30 @@ delta:
   service: "TicketServiceService"
   port: "TicketServicePort"
   
-email:
-  host: "smtp.gmail.com"
-  port: "587"
-  user: "ivanfons05@gmail.com"
-  password: "jtzhwjuswsmzngzr"
+#email:
+#  host: "smtp.gmail.com"
+#  port: "587"
+#  user: "ivanfons05@gmail.com"
+#  password: "jtzhwjuswsmzngzr"
 
 file:
   directory: "C:\\Users\\ivanf\\Documents\\MuleSoft\\input"
   fileRead: "C:\\Users\\ivanf\\Documents\\MuleSoft\\input\\records.csv"
-  fileWrite: "C:\\Users\\ivanf\\Documents\\MuleSoft\\output\\rrecordOutput.txt"
+  fileWrite: "C:\\Users\\ivanf\\Documents\\MuleSoft\\output\\recordOutput.txt"
+  fileArchive: "C:\\Users\\ivanf\\Documents\\MuleSoft\\archive"
+  
+batch:
+  fileRead: "C:\\Users\\ivanf\\Documents\\MuleSoft\\batchinput\\batchJobRecordsFile.csv"
+  dir: "C:\\Users\\ivanf\\Documents\\MuleSoft\\batchinput"
+  batchFileArchive: "C:\\Users\\ivanf\\Documents\\MuleSoft\\batcharchive"
+  
+muleRequestHttp:
+  host: "ilt.learn.mulesoft.com"
+  port: "80"
+  
+salesforce:
+  username: "ivanfons05@gmail.com"
+  password: "Scottsdale!02"
+  token: "lP3Wq7JTybNdKibi9AQgNPQQB"
+  
+  

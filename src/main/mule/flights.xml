@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/
 	<configuration-properties doc:name="Configuration properties" doc:id="25372570-4824-4c99-b8f3-e78c3ab073cd" file="config.yaml" />
 	<american-flights-api:config name="American_Flights_API_Config" doc:name="American Flights API Config" doc:id="62e4351a-5990-4387-b122-94d31c4ab065" property_host="${american.host}" property_port="${american.port}" property_protocol="${american.protocol}" property_basePath="${american.basepath}" />
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1fb4fa30-738a-45ef-ab48-aa4c3b6cd2ae" >
-		<http:request-connection host="ilt.learn.mulesoft.com" port="80" />
+		<http:request-connection host="${muleRequestHttp.host}" port="${muleRequestHttp.port}" />
 	</http:request-config>
 	<wsc:config name="Delta_Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="11d2a071-912a-425b-9af1-1fa523ec58b1" >
 		<wsc:connection wsdlLocation="${delta.wsdl}" service="${delta.service}" port="${delta.port}" />
