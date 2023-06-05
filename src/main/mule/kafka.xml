@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+	<kafka:producer-config name="Apache_Kafka_Producer_configuration" doc:name="Apache Kafka Producer configuration" doc:id="fe2b0e32-5f0b-4b2c-bb6a-9c75eaaeaea9" >
+		<kafka:producer-plaintext-connection >
+			<kafka:bootstrap-servers >
+				<kafka:bootstrap-server value="${kafka.host}" />
+			</kafka:bootstrap-servers>
+		</kafka:producer-plaintext-connection>
+	</kafka:producer-config>
+	<kafka:consumer-config name="Apache_Kafka_Consumer_configuration" doc:name="Apache Kafka Consumer configuration" doc:id="c4a8964c-928d-4447-9291-c6584992cab4" >
+		<kafka:consumer-plaintext-connection >
+			<kafka:bootstrap-servers >
+				<kafka:bootstrap-server value="${kafka.host}" />
+			</kafka:bootstrap-servers>
+			<kafka:topic-patterns >
+				<kafka:topic-pattern value="${kafka.topic}" />
+			</kafka:topic-patterns>
+		</kafka:consumer-plaintext-connection>
+	</kafka:consumer-config>
+	<flow name="KafkaConsumerFlow" doc:id="b2fa3fde-2bb7-4ea2-b143-a33f04a24124" >
+		<kafka:message-listener doc:name="Message listener" doc:id="c0fd79c6-ad63-4fa6-852e-31b366571e88" config-ref="Apache_Kafka_Consumer_configuration"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3f34e98c-8789-4ce1-a595-44250643c186" message="#[payload]"/>
+	</flow>
+	<flow name="kafkaPublisher" doc:id="880085fb-e9f2-4929-858d-0bd5ff0738e7" >
+		<scheduler doc:name="Scheduler" doc:id="1299dfd9-b1f3-48f7-89e3-3b88d0b9401e" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<kafka:publish doc:name="Publish" doc:id="f8e520a5-269a-4374-84d2-4d0ca2fe4056" config-ref="Apache_Kafka_Producer_configuration" topic="${kafka.topic}" key="#[now()]">
+			<kafka:message ><![CDATA[#["Hello Ivan"]]]></kafka:message>
+		</kafka:publish>
+		<logger level="INFO" doc:name="Logger" doc:id="1570647f-2654-4d46-81cc-a96d5f4d44ee" message="Message published to practice topic"/>
+	</flow>
+</mule>

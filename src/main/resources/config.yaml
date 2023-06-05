@@ -4,6 +4,10 @@ http:
 https:
   port: "8082"
 
+kafka:
+  topic: "practicetopic"
+  host: "localhost:9092"
+
 american:
   host: "training4-american-api.cloudhub.io"
   port: "80"
