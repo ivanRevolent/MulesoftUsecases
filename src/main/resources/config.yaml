@@ -1,3 +1,6 @@
+objectstore:
+  path: "/objectStore"
+
 http:
   port: "8081"
 
