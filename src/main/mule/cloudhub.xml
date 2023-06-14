@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
+	<cloudhub:config name="CloudHub_Config" doc:name="CloudHub Config" doc:id="750d476e-c815-4017-9999-ba38c97d2aae" >
+		<cloudhub:connection username="${cloudhub.username}" password="${cloudhub.password}" environment="${cloudhub.envid}"/>
+	</cloudhub:config>
+	<flow name="cloudhubFlow" doc:id="6f2cd5d1-4dbd-4a69-b6db-608e3183758c" >
+		<http:listener doc:name="cloudhubAppListListener" doc:id="3bedb274-7376-47e4-8f36-f19ace468ab3" config-ref="HTTP_Listener_config" path="/cloudhub/listApps"/>
+		<cloudhub:list-applications doc:name="List Applications" doc:id="04b333a6-4684-4813-986d-376f02cc2e0c" config-ref="CloudHub_Config"/>
+	</flow>
+</mule>

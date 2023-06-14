@@ -1,8 +1,28 @@
+cloudhub:
+  username: "ivanfons05"
+  password: "Scottsdale!01"
+  envid: "4ed6eae4-7006-4985-a8b9-7cb7b206c82e"
+ftp:
+  host: "192.168.0.15"
+  port: "21"
+  username: "ftpuser"
+  password: "password"
+  filepath: "/batchJobRecordsFile.csv"
+servicenow:
+  username: "admin"
+  password: "@wE!kMZJmz97"
+  address: "https://dev157723.service-now.com/"
+
 objectstore:
   path: "/objectStore"
 
 http:
   port: "8081"
+encryption:
+  key: "abcdef0123456789"
+config:
+  file: "test_email_config"
+
 
 https:
   port: "8082"

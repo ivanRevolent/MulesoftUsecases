@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ldap="http://www.mulesoft.org/schema/mule/ldap" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ldap http://www.mulesoft.org/schema/mule/ldap/current/mule-ldap.xsd">
+	<servicenow:config name="ServiceNow_Config" doc:name="ServiceNow Config" doc:id="7977f2f5-2ad6-41f6-81da-e1a4146b5b18" >
+		<servicenow:basic-connection username="${servicenow.username}" password="${servicenow.password}" serviceAddress="${servicenow.address}" serviceNowVersion="SAN_DIEGO" />
+	</servicenow:config>
+	<flow name="servicenowFlow" doc:id="1c3b87bc-3ac9-4817-a65d-2076d13650d0" >
+		<http:listener doc:name="createIncidentListener" doc:id="d23bad7d-5508-4899-a3e5-144c25abc4e3" config-ref="HTTP_Listener_config" path="/servicenow/createIncident"/>
+		<servicenow:invoke doc:name="Create Incident" doc:id="854f79d5-84e7-41cb-b23a-16e9548c47a7" service="incident" operation="insert" config-ref="ServiceNow_Config">
+			<servicenow:message >
+				<servicenow:body ><![CDATA[#[output application/xml
+ns ns0 http://www.service-now.com/incident
+---
+{
+	ns0#insert: {
+		comments: payload.comments,
+		short_description: payload.description
+	}
+}]]]></servicenow:body>
+			</servicenow:message>
+		</servicenow:invoke>
+		<ee:transform doc:name="Transform Message" doc:id="94f24028-5fb0-42c9-989d-3201761c17a9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="servicenowFlow1" doc:id="001fd58c-38fd-42c1-88af-4171a7bc5d89" >
+		<http:listener doc:name="getIncidentListener" doc:id="1239bab3-d560-4bb3-b58c-232e231ce741" config-ref="HTTP_Listener_config" path="/servicenow/getIncident/{incidentNumber}"/>
+		<servicenow:invoke service="incident" operation="getKeys" doc:name="Get Incident Id" doc:id="af7e4c8f-a013-4643-80d6-4477eb79ef0d" config-ref="ServiceNow_Config" >
+			<servicenow:message >
+				<servicenow:body ><![CDATA[#[output application/xml
+ns ns0 http://www.service-now.com/incident
+---
+{
+	ns0#getKeys: {
+		number: attributes.uriParams.incidentNumber
+	}
+}]]]></servicenow:body>
+			</servicenow:message>
+		</servicenow:invoke>
+		<servicenow:invoke service="incident" operation="get" doc:name="Get INC by Id" doc:id="c26beb29-7493-48d0-8592-851d6fc5986d" config-ref="ServiceNow_Config">
+			<servicenow:message >
+				<servicenow:body ><![CDATA[#[output application/xml
+ns ns0 http://www.service-now.com/incident
+---
+{
+	ns0#get: {
+		sys_id: payload.body.getKeysResponse.*sys_id[0]
+	}
+}]]]></servicenow:body>
+			</servicenow:message>
+		</servicenow:invoke>
+		<ee:transform doc:name="Transform Message" doc:id="18e5cb15-1f24-4110-8ddd-7c6542457a51" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Number": payload.body.getResponse.number,
+	"Description":payload.body.getResponse.short_description,
+	"Active":payload.body.getResponse.active
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

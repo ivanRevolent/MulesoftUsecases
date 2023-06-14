@@ -21,11 +21,11 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
 			</kafka:topic-patterns>
 		</kafka:consumer-plaintext-connection>
 	</kafka:consumer-config>
-	<flow name="KafkaConsumerFlow" doc:id="b2fa3fde-2bb7-4ea2-b143-a33f04a24124" >
+<!-- [STUDIO:"KafkaConsumerFlow"]	<flow name="KafkaConsumerFlow" doc:id="b2fa3fde-2bb7-4ea2-b143-a33f04a24124" >
 		<kafka:message-listener doc:name="Message listener" doc:id="c0fd79c6-ad63-4fa6-852e-31b366571e88" config-ref="Apache_Kafka_Consumer_configuration"/>
 		<logger level="INFO" doc:name="Logger" doc:id="3f34e98c-8789-4ce1-a595-44250643c186" message="#[payload]"/>
-	</flow>
-	<flow name="kafkaPublisher" doc:id="880085fb-e9f2-4929-858d-0bd5ff0738e7" >
+	</flow> [STUDIO] -->
+<!-- [STUDIO:"kafkaPublisher"]	<flow name="kafkaPublisher" doc:id="880085fb-e9f2-4929-858d-0bd5ff0738e7" >
 		<scheduler doc:name="Scheduler" doc:id="1299dfd9-b1f3-48f7-89e3-3b88d0b9401e" >
 			<scheduling-strategy >
 				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
@@ -35,5 +35,5 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
 			<kafka:message ><![CDATA[#["Hello Ivan"]]]></kafka:message>
 		</kafka:publish>
 		<logger level="INFO" doc:name="Logger" doc:id="1570647f-2654-4d46-81cc-a96d5f4d44ee" message="Message published to practice topic"/>
-	</flow>
+	</flow> [STUDIO] -->
 </mule>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="66549198-4c79-4ffa-a09b-d6375e6e6db3" >
+		<ftp:connection host="${ftp.host}" username="${ftp.username}" password="${ftp.password}" port="${ftp.port}"/>
+	</ftp:config>
+	<flow name="ftpFlow" doc:id="6753403a-9b3f-41be-84a5-0d00c19e9840" >
+		<http:listener doc:name="ftpListner" doc:id="7a95b3ca-a0cd-4c90-9724-3db1e744b527" config-ref="HTTP_Listener_config" path="/ftpRead"/>
+		<ftp:read doc:name="Read File" doc:id="65de5cfb-6227-4079-b61e-7691fdbbfb61" config-ref="FTP_Config" path="${ftp.filepath}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b6731140-2bc3-455a-9d70-a3eaf4b0d807" message="#[attributes.path]"/>
+	</flow>
+</mule>
