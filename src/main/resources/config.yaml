@@ -1,3 +1,12 @@
+slack:
+  key: "5381457522183.5409230365873"
+  secret: "6907f8630057acffdf4c39434f4ee1a1"
+  authUrl: "https://slack.com/oauth/v2/authorize"
+  accessUrl: "https://slack.com/api/oauth.v2.access"
+  callBackPath: "/callback"
+  authorizePath: "/authorize"
+  externalCallBack: "https://localhost:8082/callback"
+  
 cloudhub:
   username: "ivanfons05"
   password: "Scottsdale!01"

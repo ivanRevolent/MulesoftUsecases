@@ -30,8 +30,8 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 	</file:config>
 <slack:config name="Slack_Connector_Config" doc:name="Slack Connector Config" doc:id="9338d268-7473-4cf0-b15d-81caa52d4df7" >
 		<slack:slack-auth-connection >
-			<slack:oauth-authorization-code consumerKey="5381457522183.5409230365873" consumerSecret="6907f8630057acffdf4c39434f4ee1a1" authorizationUrl="https://slack.com/oauth/v2/authorize" accessTokenUrl="https://slack.com/api/oauth.v2.access" scopes="chat:write" after="accountBatchJobProcessingFlow" />
-			<slack:oauth-callback-config listenerConfig="HTTPS_Listener_config" callbackPath="/callback" authorizePath="/authorize" externalCallbackUrl="https://localhost:8082/callback" />
+			<slack:oauth-authorization-code consumerKey="${slack.key}" consumerSecret="${slack.secret}" authorizationUrl="${slack.authUrl}" accessTokenUrl="${slack.accessUrl}" scopes="chat:write" after="accountBatchJobProcessingFlow" />
+			<slack:oauth-callback-config listenerConfig="HTTPS_Listener_config" callbackPath="${slack.callBackPath}" authorizePath="${slack.authorizePath}" externalCallbackUrl="${slack.externalCallBack}" />
 		</slack:slack-auth-connection>
 	</slack:config>
 		<flow name="streamingFlow" doc:id="1521bb29-ec99-4f9f-a0d5-ed262938555c" >
